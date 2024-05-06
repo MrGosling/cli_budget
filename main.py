@@ -2,15 +2,15 @@ from datetime import datetime
 import json
 
 class BudgetService:
-    
-    @staticmethod
-    def get_list(filename):
-        try:
-            with open(filename, 'r') as file:
-                data = json.load(file)
-        except FileNotFoundError:
-            raise ('Файл не найден!')
-        return data
+
+    # @staticmethod
+    # def get_list(filename='file.json'):
+    #     try:
+    #         with open(filename, 'r') as file:
+    #             data = json.load(file)
+    #     except FileNotFoundError:
+    #         raise ('Файл не найден!')
+    #     return data
 
     @staticmethod
     def load(filename='file.json'):
@@ -38,14 +38,13 @@ class Budget:
         }
         return data
 
-    def _get_balance(self, budget_list):
-        # сортировка по категории доходы/расходы, разница между доходами и расходами
-        pass
-
     @staticmethod
     def find(filename='file.json', *args):
-    # def find(self, filename='file.json', category=None, date=None, amount=None):
-        data: list[dict] = BudgetService.get_list(filename)
+        data: list[dict] = BudgetService.load(filename)
+        if data == []:
+            raise FileNotFoundError(
+                'Файл не найден или в нём отсутствуют записи!'
+            )
         list_to_find = [x for x in args if x != None]
         result = []
         for item in data:            
@@ -65,9 +64,56 @@ class Budget:
         with open(filename, 'w') as file:
             json.dump(budget_list, file, ensure_ascii=False, indent=1)
 
+    @staticmethod
+    def get_balance(filename='file.json'):
+        list_of_transactions = BudgetService.load(filename)
+        if list_of_transactions == []:
+            raise FileNotFoundError(
+                'Файл не найден или в нём отсутствуют записи!'
+            )
+        income = 0
+        expenses = 0
+        for item in list_of_transactions:
+            if item['Категория'] == 'Доход':
+                income += item['Сумма']
+            elif item['Категория'] == 'Расход':
+                expenses += item['Сумма']
+        balance = income - expenses
+        return print(f'Ваш баланс составляет {balance}')
+
+    @staticmethod
+    def get_income(filename='file.json'):
+        list_of_transactions = BudgetService.load(filename)
+        if list_of_transactions == []:
+            raise FileNotFoundError(
+                'Файл не найден или в нём отсутствуют записи!'
+            )
+        income = 0
+        for item in list_of_transactions:
+            if item['Категория'] == 'Доход':
+                income += item['Сумма']
+        return print(f'Ваши доходы составляют {income}')
+
+    @staticmethod
+    def get_expenses(filename='file.json'):
+        list_of_transactions = BudgetService.load(filename)
+        if list_of_transactions == []:
+            raise FileNotFoundError(
+                'Файл не найден или в нём отсутствуют записи!'
+            )
+        expenses = 0
+        for item in list_of_transactions:
+            if item['Категория'] == 'Расход':
+                expenses += item['Сумма']
+        return print(f'Ваши расходы составляют {expenses}')
+
+
 if __name__ == '__main__':
     b = Budget(category='1', amount=20, description='new')
     c = Budget(category='2', amount=30, description='1new')
-    c.save()
-    b.save()
-    Budget.find('file.json', '1', 20)
+    # c.save()
+    # b.save()
+    Budget.find('file.json', 'Расход')
+    Budget.get_balance()
+    Budget.get_income()
+    Budget.get_expenses()
