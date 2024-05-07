@@ -46,9 +46,10 @@ class Budget:
                 'Файл не найден или в нём отсутствуют записи!'
             )
         list_to_find = [x for x in args if x != None]
+        # print(list_to_find)
         result = []
         for item in data:            
-            if all(key in item.values() for key in list_to_find):
+            if all(_ in item.values() for _ in list_to_find):
                 result.append(item)
         print(result)
         return result
@@ -113,7 +114,7 @@ if __name__ == '__main__':
     c = Budget(category='2', amount=30, description='1new')
     # c.save()
     # b.save()
-    Budget.find('file.json', 'Расход')
+    Budget.find('file.json', 'Расход', 1110)
     Budget.get_balance()
     Budget.get_income()
     Budget.get_expenses()
