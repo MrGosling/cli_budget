@@ -1,5 +1,8 @@
 import argparse
-from script import Budget
+from utils_parser import (
+    get_my_balance, get_my_income, get_my_expenses, find_transactions,
+    create_transaction, update_transaction
+)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Вежливый скрипт')
@@ -42,34 +45,26 @@ if __name__ == '__main__':
         help=('Изменить существующую запись'
               'Пример запроса:'
               'python3 cli_parser.py --update date=2024-05-03,category=Доход,amount=2000,description=newsss,new_date=2020-06-03,new_category=Доход,new_amount=5000,new_description=not_new' #noqa
-              'Пример ответа: Запись успешно обновлена!'), #noqa
+              'Пример ответа: Запись успешно обновлена!'),
         nargs='+',
     )
     args = parser.parse_args()
     if args.balance:
-        Budget.objects.get_balance()
+        get_my_balance()
     if args.income:
-        Budget.objects.get_income()
+        get_my_income()
     if args.expenses:
-        Budget.objects.get_expenses()
+        get_my_expenses()
     if args.find:
-        filters = [value.strip() for value in ','.join(args.find).split(',')]
-        Budget.objects.filter(*filters)
+        find_transactions(args.find)
     if args.create:
-        new_transaction = {}
-        data = args.create
-        for entry in data:
-            lines = entry.split(',')
-            for line in lines:
-                key, value = line.split('=')
-                new_transaction[key] = value
-        Budget.objects.create(**new_transaction)
+        create_transaction(args.create)
     if args.update:
-        transaction_to_update = {}
-        data = args.update
-        for entry in data:
-            lines = entry.split(',')
-            for line in lines:
-                key, value = line.split('=')
-                transaction_to_update[key] = value
-        Budget.objects.update(**transaction_to_update)
+        update_transaction(args.update)
+
+# python3 cli_parser.py --balance
+# python3 cli_parser.py --income
+# python3 cli_parser.py --expenses
+# python3 cli_parser.py --create date=2024-05-03,category=Доход,amount=2000,description=newsss
+# python3 cli_parser.py --find newsss
+# python3 cli_parser.py --update date=1,category=1,amount=1,description=1,new_date=2020-06-03,new_category=Доход,new_amount=5000,new_description=not_new
