@@ -159,7 +159,7 @@ class Budget:
     objects = BudgetManager(data)
     @classmethod
     def save(cls, data):
-        BudgetService.write(data)
+        BudgetService.write(data, filename=FILE_NAME)
 
 if __name__ == '__main__':
     # print(Budget)
