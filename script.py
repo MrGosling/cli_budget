@@ -15,7 +15,7 @@ class Transaction:
         if transaction_type.title() == 'Доход':
             return cls.TransactionType.INCOME
         elif transaction_type.title() == 'Расход':
-            return cls.TransactionType.EXPENSE
+            return cls.TransactionType.EXPENSES
         else:
             raise ValueError(
                 'Неправильная категория, можно выбрать Доход или Расход'
@@ -23,12 +23,11 @@ class Transaction:
 
     class TransactionType(Enum):
         INCOME = 'Доход'
-        EXPENSE = 'Расход'
-    
+        EXPENSES = 'Расход'
+
     def __init__(self, date: str, category: str, amount: str, description: str):
         self.date: str = date
-        self.category = self.get_transaction_type(category)
-        # self.category: str = category
+        self.category: Transaction.TransactionType = self.get_transaction_type(category)
         self.amount: int = int(amount)
         self.description: str = description
 
@@ -68,8 +67,10 @@ class BudgetManager:
         self.data: list[Transaction] = data
 
     def _get_index(self, date, category, amount, description) -> int | None:
+        obj: Transaction = None
+        category_type = Transaction.get_transaction_type(category)
         for index, obj in enumerate(self.data):
-            if obj.date == date and obj.category == category and obj.amount == amount and obj.description == description:
+            if obj.date == date and obj.category == category_type and obj.amount == amount and obj.description == description:
                 return index
         print('Не удалось найти запись для обновления')
 
@@ -108,9 +109,9 @@ class BudgetManager:
         income: int = 0
         expenses: int = 0
         for item in self.data:
-            if item.category == 'Доход':
+            if item.category.value == 'Доход':
                 income += item.amount
-            elif item.category == 'Расход':
+            elif item.category.value == 'Расход':
                 expenses += item.amount
         balance = income - expenses
         return print(f'Ваш баланс составляет {balance}')
@@ -122,7 +123,7 @@ class BudgetManager:
             )
         income = 0
         for item in self.data:
-            if item.category == 'Доход':
+            if item.category.value == 'Доход':
                 income += item.amount
         return print(f'Ваши доходы составляют {income}')
 
@@ -133,7 +134,7 @@ class BudgetManager:
             )
         expenses: int = 0
         for item in self.data:
-            if item.category == 'Расход':
+            if item.category.value == 'Расход':
                 expenses += item.amount
         return print(f'Ваши расходы составляют {expenses}')
 
@@ -144,7 +145,7 @@ class BudgetManager:
         index: int | None = self._get_index(date, category, int(amount), description)
         if index is not None:
             self.data[index].date = new_date
-            self.data[index].category = new_category
+            self.data[index].category = Transaction.get_transaction_type(new_category)
             self.data[index].amount = new_amount
             self.data[index].description = new_description
             self._save_data()
