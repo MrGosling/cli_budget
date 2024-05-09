@@ -1,8 +1,13 @@
+import os
 from datetime import datetime
 import json
-from constants import FILE_NAME
+# from constants import FILE_NAME#, TEST_DATA_FILE_NAME
 from enum import Enum
-
+from utils import load_environ
+FILE_NAME = 'data.json'
+load_environ()
+def set_filename():
+    return FILE_NAME
 
 class Transaction:
     
@@ -26,17 +31,28 @@ class Transaction:
 
 
 class BudgetService:
+    # @staticmethod
+    # def set_filename(filename):
+    #     return filename
+
     @staticmethod
-    def load(filename=FILE_NAME):
+    def load(filename):
+        # if filename is None:
+            # filename = FILE_NAME
+            # filename = set_filename()
         try:
             with open(filename, 'r') as file:
                 data = json.load(file)
         except FileNotFoundError:
             data = []
+            with open(filename, 'w') as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)
         return data
 
     @staticmethod
-    def write(data, filename=FILE_NAME):
+    def write(data, filename):
+        # if filename is None:
+        #     filename = set_filename()
         try:
             with open(filename, 'w') as file:
                 json.dump(data, file, ensure_ascii=False, indent=4)
@@ -57,7 +73,7 @@ class BudgetManager:
 
     def _save_data(self):
         data_to_save = [transaction.to_dict() for transaction in self.data]
-        BudgetService.write(data_to_save)
+        Budget.save(data=data_to_save)
 
     def create(self, date, category, amount, description):
         new_entry = Transaction(date, category, amount, description)
@@ -134,21 +150,26 @@ class BudgetManager:
 
 
 class Budget:
-    list_of_transactions = BudgetService.load()
+    filename = set_filename()#'test_data.json'
+    list_of_transactions = BudgetService.load(filename)
     data = []
     for item in list_of_transactions:
         transaction = Transaction(date = item['Дата'], category=item['Категория'], amount=item['Сумма'], description=item['Описание'])
         data.append(transaction)
     objects = BudgetManager(data)
+    @classmethod
+    def save(cls, data):
+        BudgetService.write(data)
 
 if __name__ == '__main__':
     # print(Budget)
     # print(Budget.objects.all())
-    Budget.objects.filter('2024-05-03','Расход', '20')
+    # Budget.objects.filter('2024-05-03','Расход', '20')
     Budget.objects.get_balance()
-    Budget.objects.get_expenses()
-    Budget.objects.get_income()
-    Budget.objects.update(date='2024-05-03', category='Доход', amount=2000, description='new', new_date='2020-06-03', new_category='Доход', new_amount=5000, new_description='not_new',)
+    # Budget.objects().get_balance()
+    # Budget.objects.get_expenses()
+    # Budget.objects.get_income()
+    # Budget.objects.update(date='2024-05-03', category='Доход', amount=2000, description='new', new_date='2020-06-03', new_category='Доход', new_amount=5000, new_description='not_new',)
     # Budget.objects.create(date='2024-05-03', category='Доход', amount=2000, description='new')
     # Budget.all()
     # print(Budget.objects.all())
