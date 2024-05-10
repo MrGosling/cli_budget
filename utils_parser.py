@@ -1,4 +1,4 @@
-from script import Budget
+from budget import Budget
 
 
 def get_my_balance() -> None:

@@ -1,14 +1,22 @@
-import os
-from subprocess import Popen, PIPE
-import unittest
 import json
+import os
+import time
+import unittest
+from subprocess import PIPE, Popen
+
 from constants import FILE_NAME
 
 
 class TestCLIParser(unittest.TestCase):
+    """
+    Класс для тестирования функционала парсера командной строки.
+    """
 
     @classmethod
     def setUpClass(cls) -> None:
+        """
+        Метод для настройки классового окружения перед запуском тестов.
+        """
         cls.backup_file_name: str = FILE_NAME + '.bak'
 
         if os.path.exists(FILE_NAME):
@@ -61,8 +69,12 @@ class TestCLIParser(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
-        import time
-        time.sleep(2)
+        """
+        Метод для очистки классового окружения после выполнения всех тестов.
+        """
+        # введите в функцию sleep() значение в секундах больше ноля, если
+        # хотите посмотреть файл с тестовыми данными.
+        time.sleep(0)
         if os.path.exists(FILE_NAME):
             os.remove(FILE_NAME)
 
@@ -70,10 +82,13 @@ class TestCLIParser(unittest.TestCase):
             os.rename(cls.backup_file_name, FILE_NAME)
 
     def setUp(self) -> None:
+        """
+        Метод для настройки окружения перед выполнением каждого теста.
+        """
         with open(FILE_NAME, 'r') as file:
             data: list[dict[str, str]] = json.load(file)
-        self.income = 0
-        self.expenses = 0
+        self.income: int = 0
+        self.expenses: int = 0
         for item in data:
             if item['Категория'] == 'Доход':
                 self.income += int(item['Сумма'])
@@ -109,7 +124,12 @@ class TestCLIParser(unittest.TestCase):
         ]
 
     def test_create_transaction(self) -> None:
+        """
+        Тест для функционала создания транзакции.
+        """
         p = Popen(self.create_input, stdout=PIPE)
+        stdout: bytes = None
+        stderr: bytes = None
         stdout, stderr = p.communicate()
         output: str = stdout.decode('utf-8').strip()
         self.assertEqual(
@@ -122,7 +142,12 @@ class TestCLIParser(unittest.TestCase):
         )
 
     def test_find_transaction(self) -> None:
+        """
+        Тест для функционала поиска транзакции.
+        """
         p = Popen(self.find_input, stdout=PIPE)
+        stdout: bytes = None
+        stderr: bytes = None
         stdout, stderr = p.communicate()
         output: str = stdout.decode('utf-8').strip()
         self.assertEqual(
@@ -135,25 +160,45 @@ class TestCLIParser(unittest.TestCase):
         )
 
     def test_get_my_balance(self) -> None:
+        """
+        Тест для функционала получения баланса.
+        """
         p = Popen(self.balance_input, stdout=PIPE)
+        stdout: bytes = None
+        stderr: bytes = None
         stdout, stderr = p.communicate()
         output: str = stdout.decode('utf-8').strip()
         self.assertEqual(output, f'Ваш баланс составляет {self.balance}')
 
     def test_get_my_expenses(self) -> None:
+        """
+        Тест для функционала получения расходов.
+        """
         p = Popen(self.expenses_input, stdout=PIPE)
+        stdout: bytes = None
+        stderr: bytes = None
         stdout, stderr = p.communicate()
         output: str = stdout.decode('utf-8').strip()
         self.assertEqual(output, f'Ваши расходы составляют {self.expenses}')
 
     def test_get_my_income(self) -> None:
+        """
+        Тест для функционала получения доходов.
+        """
         p = Popen(self.income_input, stdout=PIPE)
+        stdout: bytes = None
+        stderr: bytes = None
         stdout, stderr = p.communicate()
         output: str = stdout.decode('utf-8').strip()
         self.assertEqual(output, f'Ваши доходы составляют {self.income}')
 
     def test_update_transaction(self) -> None:
+        """
+        Тест для функционала обновления транзакции.
+        """
         p = Popen(self.update_input, stdout=PIPE)
+        stdout: bytes = None
+        stderr: bytes = None
         stdout, stderr = p.communicate()
         output: str = stdout.decode('utf-8').strip()
         self.assertEqual(output, 'Запись успешно обновлена!')

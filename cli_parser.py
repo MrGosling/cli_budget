@@ -1,8 +1,8 @@
 import argparse
-from utils_parser import (
-    get_my_balance, get_my_income, get_my_expenses, find_transactions,
-    create_transaction, update_transaction
-)
+
+from utils_parser import (create_transaction, find_transactions,
+                          get_my_balance, get_my_expenses, get_my_income,
+                          update_transaction)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
