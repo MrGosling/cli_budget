@@ -4,8 +4,6 @@ from enum import Enum
 from constants import FILE_NAME
 from utils import set_filename
 
-file_name = set_filename(FILE_NAME)
-
 
 class Transaction:
     """
@@ -280,7 +278,7 @@ class Budget:
     """
     Класс для управления бюджетом.
     """
-    filename: str = file_name
+    filename: str = set_filename(FILE_NAME)
     list_of_transactions: list[dict[str, str]] = BudgetService.load(filename)
     data: list[Transaction] = []
     for item in list_of_transactions:
@@ -301,4 +299,4 @@ class Budget:
         Args:
             data: Данные для сохранения.
         """
-        BudgetService.write(data, filename=file_name)
+        BudgetService.write(data, filename=set_filename(FILE_NAME))
