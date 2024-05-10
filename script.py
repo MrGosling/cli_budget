@@ -45,7 +45,7 @@ class Transaction:
 
     def __init__(
         self, date: str, category: str, amount: str, description: str
-    ):
+    ) -> None:
         """
         Инициализирует объект класса Transaction.
 
@@ -83,7 +83,7 @@ class BudgetService:
     """
 
     @staticmethod
-    def load(filename):
+    def load(filename) -> list | list[dict[str, str]]:
         """
         Загружает данные из файла бюджета.
 
@@ -103,7 +103,7 @@ class BudgetService:
         return data
 
     @staticmethod
-    def write(data, filename):
+    def write(data, filename) -> None:
         """
         Записывает данные в файл бюджета.
 
@@ -122,7 +122,7 @@ class BudgetManager:
     """
     Управление бюджетом.
     """
-    def __init__(self, data: list[Transaction]):
+    def __init__(self, data: list[Transaction]) -> None:
         """
         Инициализирует объект класса BudgetManager.
 

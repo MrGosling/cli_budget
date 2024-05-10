@@ -22,7 +22,7 @@ def get_my_expenses() -> None:
     print(Budget.objects.get_expenses())
 
 
-def find_transactions(data) -> None:
+def find_transactions(data: list[str]) -> None:
     """
     Функция для фильтрации и вывода транзакций на основе предоставленных
     фильтров.
@@ -36,7 +36,7 @@ def find_transactions(data) -> None:
     print(Budget.objects.filter(*filters))
 
 
-def create_transaction(data) -> None:
+def create_transaction(data: list[str]) -> None:
     """
     Функция для создания новой транзакции на основе предоставленных данных.
 
@@ -44,7 +44,7 @@ def create_transaction(data) -> None:
         data (list): Список строк, представляющих пары ключ-значение
         для новой транзакции.
     """
-    new_transaction = {}
+    new_transaction: dict = {}
     for entry in data:
         lines = entry.split(',')
         for line in lines:
@@ -53,7 +53,7 @@ def create_transaction(data) -> None:
     print(Budget.objects.create(**new_transaction))
 
 
-def update_transaction(data) -> None:
+def update_transaction(data: list[str]) -> None:
     """
     Функция для обновления транзакции новыми данными.
 

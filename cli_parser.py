@@ -5,7 +5,9 @@ from utils_parser import (
 )
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Вежливый скрипт')
+    parser = argparse.ArgumentParser(
+        description='Программа для управления бюджетом'
+    )
     parser.add_argument(
         '--balance',
         help=('Показать баланс'
@@ -29,7 +31,14 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '--find',
-        help='Находит операции, подходящие условию поиска',
+        help=('Находит операции, подходящие условию поиска'
+
+              'Пример запроса:'
+              'python3 cli_parser.py --find newsss'
+
+              'Пример ответа: Вот, что удалось найти: [{"Дата": "2024-05-03",'
+              '"Категория": "Доход", "Сумма": "2000", "Описание": "Зарплата"}]'
+              ),
         nargs='+',
     )
     parser.add_argument(
@@ -41,7 +50,7 @@ if __name__ == '__main__':
               'date=2024-05-03,category=Доход,amount=2000,description=newsss'
 
               'Пример ответа: Создана новая запись: {"Дата": "2024-05-03",'
-              '"Категория": "Доход", "Сумма": "2000", "Описание": "newsss"}'),
+              '"Категория": "Доход", "Сумма": "2000", "Описание": "Заплата"}'),
         nargs='+',
     )
     parser.add_argument(
@@ -50,7 +59,7 @@ if __name__ == '__main__':
 
               'Пример запроса:'
               'python3 cli_parser.py --update'
-              'date=2024-05-03,category=Доход,amount=2000,description=newsss,'
+              'date=2024-05-03,category=Доход,amount=2000,description=Заплата,'
               'new_date=2020-06-03,new_category=Доход,new_amount=5000,'
               'new_description=not_new'
 

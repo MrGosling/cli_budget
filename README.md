@@ -73,19 +73,19 @@ python3 cli_parser.py  --expenses
 python3 cli_parser.py --find Зарплата,2000
 ```
 
-* Редактировать запись. Аргументы именованы, все обязательны.
+* Редактировать запись. Аргументы именованы, все обязательны. \
 date, category, amount, description - аргументы для поиска записи, которую
 нужно изменить. Если запись не найдена, программа об этом сообщит. \
 new_date, new_category, new_amount, new_description - аргументы, передающие
 новые значения в запись.
 ```
-python3 cli_parser.py --update date=2024-05-03,\
-                               category=Доход,\
-                               amount=2000,\
-                               description=Зарплата,\
-                               new_date=2020-06-03,\
-                               new_category=Доход,\
-                               new_amount=5000,\
+python3 cli_parser.py --update date=2024-05-03, \
+                               category=Доход, \
+                               amount=2000, \
+                               description=Зарплата, \
+                               new_date=2020-06-03, \
+                               new_category=Доход, \
+                               new_amount=5000, \
                                new_description=new_description
 ```
 
