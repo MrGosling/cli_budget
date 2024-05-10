@@ -1,70 +1,77 @@
 import os
 from subprocess import Popen, PIPE
-import sys
-from pathlib import Path
 import unittest
-from io import StringIO
-from unittest.mock import patch, MagicMock, Mock
 import json
-import script
-# from script import Transaction, Budget, BudgetManager, BudgetService#, set_filename
-from constants import TEST_DATA_FILE_NAME, FILE_NAME
-from time import sleep
-from cli_parser import get_my_balance, get_my_income, get_my_expenses, find_transactions, create_transaction, update_transaction
-# from utils import load_environ
+from constants import FILE_NAME
 
-# load_environ()
 
 class TestCLIParser(unittest.TestCase):
 
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls.test_file = TEST_DATA_FILE_NAME
-    #     cls.db = cls.create_test_data()
-    #     sleep(1)
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.backup_file_name: str = FILE_NAME + '.bak'
 
-    # @classmethod
-    # def tearDownClass(cls):
-    #     sleep(1)
-    #     if os.path.exists(cls.test_file):
-    #         os.remove(cls.test_file)
+        if os.path.exists(FILE_NAME):
+            os.rename(FILE_NAME, cls.backup_file_name)
 
-    # @classmethod
-    # def create_test_data(cls):
-    #     test_data = [
-    #         {
-    #             "date": "2024-05-01",
-    #             "category": "Доход",
-    #             "amount": "1000",
-    #             "description": "Зарплата"
-    #         },
-    #         {
-    #             "date": "2024-05-02",
-    #             "category": "Расход",
-    #             "amount": "500",
-    #             "description": "Покупки"
-    #         },
-    #         {
-    #             "date": "2024-05-03",
-    #             "category": "Доход",
-    #             "amount": "1500",
-    #             "description": "Зарплата"
-    #         },
-    #         {
-    #             "date": "2024-05-04",
-    #             "category": "Расход",
-    #             "amount": "100",
-    #             "description": "Покупки"
-    #         }
-    #     ]
+        cls.transaction1: dict[str, str] = {
+            'Дата': '2024-05-01',
+            'Категория': 'Доход',
+            'Сумма': '1000',
+            'Описание': 'Зарплата'
+        }
 
-        # with open(cls.test_file, 'w') as file:
-        #     json.dump(test_data, file, ensure_ascii=False, indent=4)
+        cls.transaction2: dict[str, str] = {
+            'Дата': '2024-05-02',
+            'Категория': 'Расход',
+            'Сумма': '500',
+            'Описание': 'Покупки'
+        }
+
+        cls.to_find: dict[str, str] = {
+            'Дата': '2024-05-03',
+            'Категория': 'Доход',
+            'Сумма': '1500',
+            'Описание': 'Запись для поиска'
+        }
+
+        cls.to_update: dict[str, str] = {
+            'Дата': '2024-05-04',
+            'Категория': 'Расход',
+            'Сумма': '100',
+            'Описание': 'Запись для апдейта'
+        }
+
+        cls.to_create: dict[str, str] = {
+            'Дата': '2024-05-03',
+            'Категория': 'Доход',
+            'Сумма': '2000',
+            'Описание': 'Созданная запись'
+        }
+
+        cls.test_data: list[dict[str, str]] = [
+            cls.transaction1,
+            cls.transaction2,
+            cls.to_find,
+            cls.to_update
+        ]
+
+        with open(FILE_NAME, 'w') as file:
+            json.dump(cls.test_data, file, ensure_ascii=False, indent=4)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        import time
+        time.sleep(2)
+        if os.path.exists(FILE_NAME):
+            os.remove(FILE_NAME)
+
+        if os.path.exists(cls.backup_file_name):
+            os.rename(cls.backup_file_name, FILE_NAME)
 
     def setUp(self) -> None:
         with open(FILE_NAME, 'r') as file:
-            data = json.load(file)
+            data: list[dict[str, str]] = json.load(file)
         self.income = 0
         self.expenses = 0
         for item in data:
@@ -72,51 +79,85 @@ class TestCLIParser(unittest.TestCase):
                 self.income += int(item['Сумма'])
             if item['Категория'] == 'Расход':
                 self.expenses += int(item['Сумма'])
-        self.balance = self.income - self.expenses
-        template_input = ['python3', 'cli_parser.py']
-        self.balance_input = ['python3', 'cli_parser.py', '--balance']
-        self.income_input = ['python3', 'cli_parser.py', '--income']
-        self.expenses_input = ['python3', 'cli_parser.py', '--expenses']
-        self.create_input = ['python3', 'cli_parser.py', '--create', 'date=2024-05-03', 'category=Доход', 'amount=2000', 'description=newsss']
-        self.find_input = ['python3', 'cli_parser.py', '--find', 'newsss']
-        self.update_input = ['python3', 'cli_parser.py', '--update', 'date=2024-05-03', 'category=Доход', 'amount=2000', 'description=newsss', 'new_date=2020-06-03', 'new_category=Доход', 'new_amount=5000', 'new_description=not_new']
+        self.balance: int = self.income - self.expenses
 
-    def test_get_my_balance(self):
-        p = Popen(self.balance_input, stdout=PIPE)
-        stdout, stderr = p.communicate()
-        output = stdout.decode('utf-8').strip()
-        self.assertEqual(output, f'Ваш баланс составляет {self.balance}')
+        base_command: list[str] = ['python3', 'cli_parser.py']
+        self.balance_input: list[str] = base_command + ['--balance']
+        self.income_input: list[str] = base_command + ['--income']
+        self.expenses_input: list[str] = base_command + ['--expenses']
+        self.create_input: list[str] = base_command + [
+            '--create',
+            'date=' + self.to_create['Дата'],
+            'category=' + self.to_create['Категория'],
+            'amount=' + self.to_create['Сумма'],
+            'description=' + self.to_create['Описание']
+        ]
+        self.find_input: list[str] = base_command + [
+            '--find',
+            self.to_find['Описание']
+        ]
+        self.update_input: list[str] = base_command + [
+            '--update',
+            'date=' + self.to_update['Дата'],
+            'category=' + self.to_update['Категория'],
+            'amount=' + self.to_update['Сумма'],
+            'description=' + self.to_update['Описание'],
+            'new_date=2020-06-03',
+            'new_category=Доход',
+            'new_amount=5000',
+            'new_description=not_new'
+        ]
 
-    def test_get_my_income(self):
-        p = Popen(self.income_input, stdout=PIPE)
-        stdout, stderr = p.communicate()
-        output = stdout.decode('utf-8').strip()
-        self.assertEqual(output, f'Ваши доходы составляют {self.income}')
-
-    def test_get_my_expenses(self):
-        p = Popen(self.expenses_input, stdout=PIPE)
-        stdout, stderr = p.communicate()
-        output = stdout.decode('utf-8').strip()
-        self.assertEqual(output, f'Ваши расходы составляют {self.expenses}')
-
-    def test_create_transaction(self):
+    def test_create_transaction(self) -> None:
         p = Popen(self.create_input, stdout=PIPE)
         stdout, stderr = p.communicate()
-        output = stdout.decode('utf-8').strip()
-        self.assertEqual(output, "Создана новая запись: {'Дата': '2024-05-03', 'Категория': 'Доход', 'Сумма': '2000', 'Описание': 'newsss'}")
+        output: str = stdout.decode('utf-8').strip()
+        self.assertEqual(
+            output,
+            f"Создана новая запись: "
+            f"{{'Дата': '{self.to_create['Дата']}', "
+            f"'Категория': '{self.to_create['Категория']}', "
+            f"'Сумма': '{self.to_create['Сумма']}', "
+            f"'Описание': '{self.to_create['Описание']}'}}"
+        )
 
-    @unittest.expectedFailure
-    def test_find_transaction(self):
-        p= Popen(self.find_input, stdout=PIPE)
+    def test_find_transaction(self) -> None:
+        p = Popen(self.find_input, stdout=PIPE)
         stdout, stderr = p.communicate()
-        output = stdout.decode('utf-8').strip()
-        self.assertEqual(output, "Вот, что удалось найти: [{'Дата': '2024-[576 chars]s'}]")
+        output: str = stdout.decode('utf-8').strip()
+        self.assertEqual(
+            output,
+            f"Вот, что удалось найти: "
+            f"[{{'Дата': '{self.to_find['Дата']}', "
+            f"'Категория': '{self.to_find['Категория']}', "
+            f"'Сумма': '{self.to_find['Сумма']}', "
+            f"'Описание': '{self.to_find['Описание']}'}}]"
+        )
 
-    def test_update_transaction(self):
+    def test_get_my_balance(self) -> None:
+        p = Popen(self.balance_input, stdout=PIPE)
+        stdout, stderr = p.communicate()
+        output: str = stdout.decode('utf-8').strip()
+        self.assertEqual(output, f'Ваш баланс составляет {self.balance}')
+
+    def test_get_my_expenses(self) -> None:
+        p = Popen(self.expenses_input, stdout=PIPE)
+        stdout, stderr = p.communicate()
+        output: str = stdout.decode('utf-8').strip()
+        self.assertEqual(output, f'Ваши расходы составляют {self.expenses}')
+
+    def test_get_my_income(self) -> None:
+        p = Popen(self.income_input, stdout=PIPE)
+        stdout, stderr = p.communicate()
+        output: str = stdout.decode('utf-8').strip()
+        self.assertEqual(output, f'Ваши доходы составляют {self.income}')
+
+    def test_update_transaction(self) -> None:
         p = Popen(self.update_input, stdout=PIPE)
         stdout, stderr = p.communicate()
-        output = stdout.decode('utf-8').strip()
+        output: str = stdout.decode('utf-8').strip()
         self.assertEqual(output, 'Запись успешно обновлена!')
+
 
 if __name__ == '__main__':
     unittest.main()

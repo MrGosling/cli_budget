@@ -35,16 +35,25 @@ if __name__ == '__main__':
     parser.add_argument(
         '--create',
         help=('Создать новую запись'
+
               'Пример запроса:'
-              'python3 cli_parser.py --create date=2024-05-03,category=Доход,amount=2000,description=newsss' #noqa
-              'Пример ответа: Создана новая запись: {"Дата": "2024-05-03", "Категория": "Доход", "Сумма": "2000", "Описание": "newsss"}'), #noqa
+              'python3 cli_parser.py --create'
+              'date=2024-05-03,category=Доход,amount=2000,description=newsss'
+
+              'Пример ответа: Создана новая запись: {"Дата": "2024-05-03",'
+              '"Категория": "Доход", "Сумма": "2000", "Описание": "newsss"}'),
         nargs='+',
     )
     parser.add_argument(
         '--update',
         help=('Изменить существующую запись'
+
               'Пример запроса:'
-              'python3 cli_parser.py --update date=2024-05-03,category=Доход,amount=2000,description=newsss,new_date=2020-06-03,new_category=Доход,new_amount=5000,new_description=not_new' #noqa
+              'python3 cli_parser.py --update'
+              'date=2024-05-03,category=Доход,amount=2000,description=newsss,'
+              'new_date=2020-06-03,new_category=Доход,new_amount=5000,'
+              'new_description=not_new'
+
               'Пример ответа: Запись успешно обновлена!'),
         nargs='+',
     )
@@ -61,10 +70,3 @@ if __name__ == '__main__':
         create_transaction(args.create)
     if args.update:
         update_transaction(args.update)
-
-# python3 cli_parser.py --balance
-# python3 cli_parser.py --income
-# python3 cli_parser.py --expenses
-# python3 cli_parser.py --create date=2024-05-03,category=Доход,amount=2000,description=newsss
-# python3 cli_parser.py --find newsss
-# python3 cli_parser.py --update date=1,category=1,amount=1,description=1,new_date=2020-06-03,new_category=Доход,new_amount=5000,new_description=not_new
